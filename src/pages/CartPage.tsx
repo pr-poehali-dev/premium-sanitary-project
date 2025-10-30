@@ -1,60 +1,16 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
-
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
-
-const initialItems: CartItem[] = [
-  { 
-    id: 1, 
-    name: 'Унитаз-компакт безободковый', 
-    price: 25190, 
-    quantity: 1,
-    image: 'https://cdn.poehali.dev/projects/92cd2cde-f392-4b48-90a6-8725edd84626/files/f85f7542-9228-4680-a89e-478ca00947e6.jpg'
-  },
-  { 
-    id: 2, 
-    name: 'Раковина Duravit DuraSquare 600x345', 
-    price: 31500, 
-    quantity: 1,
-    image: 'https://cdn.poehali.dev/projects/92cd2cde-f392-4b48-90a6-8725edd84626/files/11d31b1e-b078-40af-b2a2-36a231f9705f.jpg'
-  },
-  { 
-    id: 3, 
-    name: 'Смеситель для раковины', 
-    price: 25000, 
-    quantity: 1,
-    image: 'https://cdn.poehali.dev/projects/92cd2cde-f392-4b48-90a6-8725edd84626/files/11d31b1e-b078-40af-b2a2-36a231f9705f.jpg'
-  },
-];
+import { useCart } from '@/contexts/CartContext';
 
 export default function CartPage() {
-  const [items, setItems] = useState<CartItem[]>(initialItems);
+  const { items, updateQuantity, removeFromCart, getTotalItems, getTotalPrice } = useCart();
 
-  const updateQuantity = (id: number, delta: number) => {
-    setItems(items.map(item => 
-      item.id === id 
-        ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-        : item
-    ));
-  };
-
-  const removeItem = (id: number) => {
-    setItems(items.filter(item => item.id !== id));
-  };
-
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const totalItems = getTotalItems();
+  const totalPrice = getTotalPrice();
 
   return (
     <div className="min-h-screen bg-background">
@@ -109,7 +65,7 @@ export default function CartPage() {
                           <Button 
                             variant="ghost" 
                             size="icon"
-                            onClick={() => updateQuantity(item.id, -1)}
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
                             className="h-10 w-10"
                           >
                             <Icon name="Minus" size={16} />
@@ -118,7 +74,7 @@ export default function CartPage() {
                           <Button 
                             variant="ghost" 
                             size="icon"
-                            onClick={() => updateQuantity(item.id, 1)}
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
                             className="h-10 w-10"
                           >
                             <Icon name="Plus" size={16} />
@@ -132,7 +88,7 @@ export default function CartPage() {
                           <Button 
                             variant="ghost" 
                             size="icon"
-                            onClick={() => removeItem(item.id)}
+                            onClick={() => removeFromCart(item.id)}
                             className="text-destructive hover:text-destructive hover:bg-destructive/10"
                           >
                             <Icon name="Trash2" size={20} />

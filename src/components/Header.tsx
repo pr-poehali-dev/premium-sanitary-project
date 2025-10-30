@@ -6,10 +6,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useCart } from '@/contexts/CartContext';
 
 export default function Header() {
   const [isCallbackOpen, setIsCallbackOpen] = useState(false);
-  const [cartCount] = useState(1);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { getTotalItems } = useCart();
+  const cartCount = getTotalItems();
+
+  const navLinks = [
+    { to: '/catalog', label: 'Каталог' },
+    { to: '/', label: 'Коллекции' },
+    { to: '/', label: 'О компании' },
+    { to: '/', label: 'Контакты' },
+  ];
 
   return (
     <>
@@ -21,21 +32,18 @@ export default function Header() {
             </Link>
 
             <nav className="hidden md:flex items-center gap-8 font-montserrat">
-              <Link to="/" className="text-foreground hover:text-primary transition-colors">
-                Каталог
-              </Link>
-              <Link to="/" className="text-foreground hover:text-primary transition-colors">
-                Коллекции
-              </Link>
-              <Link to="/" className="text-foreground hover:text-primary transition-colors">
-                О компании
-              </Link>
-              <Link to="/" className="text-foreground hover:text-primary transition-colors">
-                Контакты
-              </Link>
+              {navLinks.map((link) => (
+                <Link 
+                  key={link.to} 
+                  to={link.to} 
+                  className="text-foreground hover:text-primary transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
             </nav>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
               <div className="hidden lg:flex items-center gap-2 text-sm">
                 <Icon name="Phone" size={18} className="text-primary" />
                 <span className="font-medium">+7 900 123 4567</span>
@@ -59,9 +67,54 @@ export default function Header() {
                 </Button>
               </Link>
 
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="hidden md:flex">
                 <Icon name="Search" size={20} />
               </Button>
+
+              <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="md:hidden">
+                    <Icon name="Menu" size={24} />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="bg-background w-[300px]">
+                  <div className="flex flex-col gap-6 mt-8">
+                    <Link to="/" className="text-2xl font-montserrat font-bold text-primary mb-4">
+                      LOGOTYPE
+                    </Link>
+                    
+                    <nav className="flex flex-col gap-4">
+                      {navLinks.map((link) => (
+                        <Link
+                          key={link.to}
+                          to={link.to}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="text-lg font-montserrat text-foreground hover:text-primary transition-colors py-2 border-b border-border"
+                        >
+                          {link.label}
+                        </Link>
+                      ))}
+                    </nav>
+
+                    <div className="flex flex-col gap-4 mt-4">
+                      <div className="flex items-center gap-2 text-sm">
+                        <Icon name="Phone" size={18} className="text-primary" />
+                        <span className="font-medium">+7 900 123 4567</span>
+                      </div>
+                      
+                      <Button 
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          setIsCallbackOpen(true);
+                        }}
+                        className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                      >
+                        Заказать звонок
+                      </Button>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>

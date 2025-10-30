@@ -3,6 +3,8 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useCart } from '@/contexts/CartContext';
+import { toast } from 'sonner';
 
 const collectionProducts = [
   { 
@@ -45,7 +47,18 @@ const awards = [
 
 export default function CollectionPage() {
   const { name } = useParams();
+  const { addToCart } = useCart();
   const collectionName = name?.toUpperCase() || 'SPIRIT 2.0';
+
+  const handleAddToCart = (product: typeof collectionProducts[0]) => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+    });
+    toast.success('Товар добавлен в корзину');
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -120,13 +133,12 @@ export default function CollectionPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
           {collectionProducts.map((product, index) => (
-            <Link 
+            <Card 
               key={product.id} 
-              to={`/product/${product.id}`}
-              className="animate-scale-in"
+              className="group bg-card border-border hover:border-primary transition-all duration-300 overflow-hidden animate-scale-in"
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <Card className="group bg-card border-border hover:border-primary transition-all duration-300 overflow-hidden">
+              <Link to={`/product/${product.id}`}>
                 <div className="relative h-64 bg-secondary overflow-hidden">
                   <img 
                     src={product.image}
@@ -134,19 +146,24 @@ export default function CollectionPage() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
-                <div className="p-4">
-                  <h4 className="font-medium text-foreground mb-3 line-clamp-2 min-h-[48px]">
+              </Link>
+              <div className="p-4">
+                <Link to={`/product/${product.id}`}>
+                  <h4 className="font-medium text-foreground mb-3 line-clamp-2 min-h-[48px] hover:text-primary transition-colors">
                     {product.name}
                   </h4>
-                  <p className="font-montserrat font-bold text-xl text-primary mb-4">
-                    {product.price.toLocaleString('ru-RU')} ₽
-                  </p>
-                  <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                    В корзину
-                  </Button>
-                </div>
-              </Card>
-            </Link>
+                </Link>
+                <p className="font-montserrat font-bold text-xl text-primary mb-4">
+                  {product.price.toLocaleString('ru-RU')} ₽
+                </p>
+                <Button 
+                  onClick={() => handleAddToCart(product)}
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  В корзину
+                </Button>
+              </div>
+            </Card>
           ))}
         </div>
       </section>

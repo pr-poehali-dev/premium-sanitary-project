@@ -5,6 +5,8 @@ import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
+import { useCart } from '@/contexts/CartContext';
+import { toast } from 'sonner';
 
 const productData = {
   name: 'Унитаз-компакт безободковый',
@@ -26,10 +28,23 @@ const productData = {
 
 export default function ProductPage() {
   const { id } = useParams();
+  const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
 
   const handleIncrement = () => setQuantity(q => q + 1);
   const handleDecrement = () => setQuantity(q => q > 1 ? q - 1 : 1);
+
+  const handleAddToCart = () => {
+    for (let i = 0; i < quantity; i++) {
+      addToCart({
+        id: Number(id) || 1,
+        name: productData.name,
+        price: productData.price,
+        image: productData.image,
+      });
+    }
+    toast.success(`Добавлено в корзину: ${quantity} шт.`);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -94,19 +109,22 @@ export default function ProductPage() {
 
               <Button 
                 size="lg" 
+                onClick={handleAddToCart}
                 className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 h-12"
               >
                 В корзину
               </Button>
             </div>
 
-            <Button 
-              size="lg" 
-              variant="outline"
-              className="w-full h-12 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-            >
-              Купить в 1 клик
-            </Button>
+            <Link to="/cart">
+              <Button 
+                size="lg" 
+                variant="outline"
+                className="w-full h-12 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+              >
+                Купить в 1 клик
+              </Button>
+            </Link>
 
             <Tabs defaultValue="description" className="mt-8">
               <TabsList className="w-full">
